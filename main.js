@@ -1,56 +1,50 @@
-const apikey = "3a59d76748c3d0026258187f5346f214";
-               const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=miami";
-
-               const searchBox = document.querySelector(".search input");
-               const searchBtn = document.querySelector(".search button");
-               const weatherIcon = document.querySelector("weather-icon")
-
-               async function checkWeather(city){
-                const response = await fetch(apiUrl + city + '&appid=${apiKey}');
-
-
-                if(response.status == 404){
-                    document.querySelector(".error").style.display = "block"
-                    document.querySelector(".weather").style.display = "none"
-                }else{
-                }
-
-
-
-                var data = await response.json();
-
-                document.querySelector(".city").innerHTML = data.name;
-                document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°c";
-                document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
-                document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
-
-                if(data.checkWeather[0].main == "Clouds"){
-                    waetherIcon.scr = "images/clouds.png"
-
-                }
-
-                else if(data.weather[0].main == "Clear"){
-                    weatherIcon.scr = "images/clear.png"
-                }
-
-                else if(data.weather[0].main == "Rain"){
-                    weatherIcon.scr = "images/rain.png"
-                }
-
-                else if(data.weather[0].main == "Drizzle"){
-                    weatherIcon.scr = "images/drizzle.png"
-                }
-
-                else if(data.weather[0].main == "Mist"){
-                    weatherIcon.scr = "images/Mist.png"
-                }
-
-                document.querySelector(".weather").style.display = "block";
-            }
-
-               
-               
-
-            searchBtn.addEventListener("click", ()=>{
-               checkWeather(searchBox.value);
-            })
+const api = {
+    key: "3a59d76748c3d0026258187f5346f214",
+    base: "https://api.openweathermap.org/data/2.5/weather?zip={zip code},{country code}&appid={API key}"
+  }
+  
+  const searchbox = document.querySelector('.search-box');
+  searchbox.addEventListener('keypress', setQuery);
+  
+  function setQuery(evt) {
+    if (evt.keyCode == 13) {
+      getResults(searchbox.value);
+    }
+  }
+  
+  function getResults (query) {
+    fetch(`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`)
+      .then(weather => {
+        return weather.json();
+      }).then(displayResults);
+  }
+  
+  function displayResults (weather) {
+    let city = document.querySelector('.location .city');
+    city.innerText = `${weather.name}, ${weather.sys.country}`;
+  
+    let now = new Date();
+    let date = document.querySelector('.location .date');
+    date.innerText = dateBuilder(now);
+  
+    let temp = document.querySelector('.current .temp');
+    temp.innerHTML = `${Math.round(weather.main.temp)}<span>°c</span>`;
+  
+    let weather_el = document.querySelector('.current .weather');
+    weather_el.innerText = weather.weather[0].main;
+  
+    let hilow = document.querySelector('.hi-low');
+    hilow.innerText = `${Math.round(weather.main.temp_min)}°c / ${Math.round(weather.main.temp_max)}°c`;
+  }
+  
+  function dateBuilder (d) {
+    let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  
+    let day = days[d.getDay()];
+    let date = d.getDate();
+    let month = months[d.getMonth()];
+    let year = d.getFullYear();
+  
+    return `${day} ${date} ${month} ${year}`;
+  }
